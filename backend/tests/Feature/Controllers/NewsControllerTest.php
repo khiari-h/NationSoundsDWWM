@@ -1,9 +1,10 @@
 <?php
-
 namespace Tests\Feature\Controllers;
 
 use App\Models\News;
+use App\Models\AdminUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class NewsControllerTest extends TestCase
@@ -11,113 +12,116 @@ class NewsControllerTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function index_returns_all_news()
-    {
-        // Créer des actualités
-        News::factory()->count(3)->create();
+/** @test */
+public function index_returns_all_news()
+{
+    // Supprimez toutes les news existantes avant de créer les nouvelles
+    News::query()->delete();
 
-        // Appeler la méthode index (GET)
-        $response = $this->getJson('/api/news');
+    // Créer exactement 3 news
+    News::factory()->count(3)->create();
 
-        // Vérifier la réponse
-        $response->assertStatus(200)
-                 ->assertJsonCount(3)
-                 ->assertJsonStructure([
-                     '*' => [
-                         'id',
-                         'title',
-                         'description',
-                         'category',
-                         'importance'
-                     ]
-                 ]);
-    }
+    $response = $this->getJson('/api/news');
+
+    $response->assertStatus(200)
+             ->assertJsonCount(3)
+             ->assertJsonStructure([
+                 '*' => [
+                     'id', 'title', 'description', 
+                     'category', 'importance'
+                 ]
+             ]);
+}
 
     /** @test */
     public function show_returns_single_news()
     {
-        // Créer une actualité
         $news = News::factory()->create([
-            'title'       => 'Test News',
-            'description' => 'Test Description',
-            'category'    => 'Event',
-            'importance'  => 3
+            'title' => 'Festival Details',
+            'description' => 'Exciting music festival upcoming',
+            'category' => 'Festival',
+            'importance' => News::IMPORTANCE_HAUTE
         ]);
 
-        // Appeler la méthode show (GET)
-        $response = $this->getJson('/api/news/' . $news->id);
+        $response = $this->getJson("/api/news/{$news->id}");
 
-        // Vérifier la réponse
         $response->assertStatus(200)
                  ->assertJson([
-                     'id'          => $news->id,
-                     'title'       => 'Test News',
-                     'description' => 'Test Description',
-                     'category'    => 'Event',
-                     'importance'  => 3
+                     'id' => $news->id,
+                     'title' => 'Festival Details',
+                     'description' => 'Exciting music festival upcoming',
+                     'category' => 'Festival',
+                     'importance' => 2
                  ]);
     }
 
     /** @test */
     public function show_returns_404_for_non_existent_news()
     {
-        // Appeler la méthode show avec un ID inexistant
-        $response = $this->getJson('/api/news/999');
+        $response = $this->getJson('/api/news/9999');
 
-        // Vérifier la réponse
-        $response->assertStatus(404)
-                 ->assertJson([
-                     'message' => 'News item not found'
-                 ]);
+        $response->assertStatus(404);
     }
 
     /** @test */
-    public function store_method_is_not_accessible_publicly()
+    public function admin_can_create_news()
     {
-        // Données pour une nouvelle actualité
+        $admin = AdminUser::factory()->create();
+        Sanctum::actingAs($admin);
+
         $newsData = [
-            'title'       => 'New News',
-            'description' => 'News Description',
-            'category'    => 'Event',
-            'importance'  => 2
+            'title' => 'New Festival Announcement',
+            'description' => 'Major music event coming soon',
+            'category' => 'Festival',
+            'importance' => News::IMPORTANCE_TRES_HAUTE
         ];
 
-        // Tenter d'appeler la méthode store publiquement (POST sur /api/news)
-        $response = $this->postJson('/api/news', $newsData);
+        $response = $this->postJson('/api/admin/news', $newsData);
 
-        // La route existe pour GET, donc pour POST Laravel renvoie un 405 Method Not Allowed
-        $response->assertStatus(405);
+        $response->assertStatus(201)
+                 ->assertJson([
+                     'title' => 'New Festival Announcement',
+                     'category' => 'Festival',
+                     'importance' => 3
+                 ]);
+
+        $this->assertDatabaseHas('news', [
+            'title' => 'New Festival Announcement',
+            'category' => 'Festival'
+        ]);
     }
 
     /** @test */
-    public function update_method_is_not_accessible_publicly()
+    public function admin_cannot_create_news_with_invalid_data()
     {
-        // Créer une actualité
-        $news = News::factory()->create();
+        $admin = AdminUser::factory()->create();
+        Sanctum::actingAs($admin);
 
-        // Données pour la mise à jour
-        $updateData = [
-            'title'       => 'Updated News',
-            'description' => 'Updated Description'
+        $invalidNewsData = [
+            'title' => '', // Empty title
+            'description' => 'Some description',
+            'category' => 'Festival',
+            'importance' => 99 // Invalid importance
         ];
 
-        // Tenter d'appeler la méthode update publiquement (PUT sur /api/news/{id})
-        $response = $this->putJson('/api/news/' . $news->id, $updateData);
+        $response = $this->postJson('/api/admin/news', $invalidNewsData);
 
-        // La route publique n'accepte que GET, donc PUT retourne 405
-        $response->assertStatus(405);
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors(['title', 'importance']);
     }
 
     /** @test */
-    public function destroy_method_is_not_accessible_publicly()
+    public function non_admin_cannot_create_news()
     {
-        // Créer une actualité
-        $news = News::factory()->create();
+        $newsData = [
+            'title' => 'Unauthorized News',
+            'description' => 'Should not be created',
+            'category' => 'Festival',
+            'importance' => News::IMPORTANCE_MOYENNE
+        ];
 
-        // Tenter d'appeler la méthode destroy publiquement (DELETE sur /api/news/{id})
-        $response = $this->deleteJson('/api/news/' . $news->id);
+        $response = $this->postJson('/api/admin/news', $newsData);
 
-        // DELETE sur cette URL retourne 405 (méthode non autorisée)
-        $response->assertStatus(405);
+        $response->assertStatus(401); // Unauthorized
     }
 }

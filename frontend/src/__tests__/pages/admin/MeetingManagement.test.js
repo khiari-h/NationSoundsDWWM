@@ -60,7 +60,9 @@ describe('MeetingManagement', () => {
   test('renders loading message initially', () => {
     render(<MeetingManagement />);
     
-    expect(screen.getByText('Chargement...')).toBeInTheDocument();
+    // Vérifier la présence du spinner
+    const spinner = document.querySelector('.animate-spin');
+    expect(spinner).toBeInTheDocument();
   });
 
   test('renders meetings list after loading', async () => {
@@ -135,7 +137,7 @@ describe('MeetingManagement', () => {
     fireEvent.click(screen.getByText('Enregistrer'));
     
     await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith('/api/meetings', expect.objectContaining({
+      expect(axios.post).toHaveBeenCalledWith('/api/admin/meetings', expect.objectContaining({
         title: 'New Meeting',
         artist_id: '1'
       }));
@@ -144,20 +146,44 @@ describe('MeetingManagement', () => {
   
 
   test('deletes a meeting', async () => {
-    axios.delete.mockResolvedValue({});
+    // Configuration des mocks
+    window.confirm = jest.fn().mockReturnValue(true);
     
+    // Important: assurez-vous que ces mocks fonctionnent correctement
+    axios.get.mockImplementation((url) => {
+      if (url === '/api/meetings') {
+        return Promise.resolve({ data: mockMeetings });
+      }
+      if (url === '/api/artists') {
+        return Promise.resolve({ data: mockArtists });
+      }
+      return Promise.reject(new Error('Not found'));
+    });
+    
+    axios.delete.mockResolvedValue({ data: {} });
+    
+    // Rendu du composant
     render(<MeetingManagement />);
     
+    // Attendre que le composant finisse de charger et affiche les boutons
     await waitFor(() => {
-      expect(screen.getAllByText('Supprimer')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('Supprimer').length).toBeGreaterThan(0);
     });
     
-    // Click delete button
-    fireEvent.click(screen.getAllByText('Supprimer')[0]);
+    // Simuler le clic sur le bouton de suppression
+    const deleteButtons = screen.getAllByText('Supprimer');
+    fireEvent.click(deleteButtons[0]);
     
+    // Vérifier que window.confirm a été appelé
+    expect(window.confirm).toHaveBeenCalled();
+    
+    // Debug pour voir ce qui se passe
+    console.log('axios.delete mock calls:', axios.delete.mock.calls);
+    
+    // Vérifier que axios.delete a été appelé
     await waitFor(() => {
-      expect(axios.delete).toHaveBeenCalledWith('/api/meetings/1');
-    });
+      expect(axios.delete).toHaveBeenCalledWith('/api/admin/meetings/1');
+    }, { timeout: 3000 });
   });
 
   test('shows error message when API call fails', async () => {

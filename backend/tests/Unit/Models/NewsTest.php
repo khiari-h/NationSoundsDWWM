@@ -1,5 +1,4 @@
 <?php
-
 namespace Tests\Unit\Models;
 
 use App\Models\News;
@@ -13,7 +12,6 @@ class NewsTest extends TestCase
     /** @test */
     public function it_has_fillable_attributes()
     {
-        // Vérifier que les attributs attendus sont bien fillable
         $news = new News();
         $fillable = $news->getFillable();
 
@@ -28,21 +26,24 @@ class NewsTest extends TestCase
     /** @test */
     public function it_can_create_news()
     {
-        // Créer une actualité
+        // Créer une actualité avec l'importance comme valeur numérique
         $news = News::create([
             'title' => 'Test News',
             'description' => 'This is a test news',
             'category' => 'Event',
-            'importance' => 3
+            'importance' => News::IMPORTANCE_HAUTE // ou simplement 2
         ]);
 
-        // Vérifier que l'actualité a été créée
+        // Vérifier que l'actualité a été créée avec la bonne importance
         $this->assertDatabaseHas('news', [
             'title' => 'Test News',
             'description' => 'This is a test news',
             'category' => 'Event',
-            'importance' => 3
+            'importance' => 2
         ]);
+
+        // Vérifier le libellé de l'importance
+        $this->assertEquals('Haute', $news->importance_label);
     }
 
     /** @test */
@@ -53,13 +54,14 @@ class NewsTest extends TestCase
             'title' => 'Original Title',
             'description' => 'Original Description',
             'category' => 'Event',
-            'importance' => 3
+            'importance' => News::IMPORTANCE_MOYENNE // ou 1
         ]);
 
         // Mettre à jour l'actualité
         $news->update([
             'title' => 'Updated Title',
-            'description' => 'Updated Description'
+            'description' => 'Updated Description',
+            'importance' => News::IMPORTANCE_HAUTE // ou 2
         ]);
 
         // Vérifier que l'actualité a été mise à jour
@@ -68,8 +70,11 @@ class NewsTest extends TestCase
             'title' => 'Updated Title',
             'description' => 'Updated Description',
             'category' => 'Event',
-            'importance' => 3
+            'importance' => 2
         ]);
+
+        // Vérifier le nouveau libellé de l'importance
+        $this->assertEquals('Haute', $news->importance_label);
     }
 
     /** @test */
@@ -80,7 +85,7 @@ class NewsTest extends TestCase
             'title' => 'News to Delete',
             'description' => 'This news will be deleted',
             'category' => 'Event',
-            'importance' => 1
+            'importance' => News::IMPORTANCE_FAIBLE // ou 0
         ]);
 
         // Récupérer l'ID pour vérification ultérieure

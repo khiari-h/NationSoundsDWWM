@@ -3,6 +3,7 @@ import axios from '../../../config/axiosConfig';
 import AdminSidebar from './components/AdminSidebar';
 
 const NewsManagement = () => {
+  // État pour gérer les news, le formulaire et l'interface
   const [news, setNews] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
@@ -15,6 +16,18 @@ const NewsManagement = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Constantes pour les catégories et importances
+  const CATEGORIES = [
+    'Festival', 'Artiste', 'Concert', 'Événement'
+  ];
+
+  const IMPORTANCES = [
+    { value: 0, label: 'Faible' },
+    { value: 1, label: 'Moyenne' },
+    { value: 2, label: 'Haute' },
+    { value: 3, label: 'Très Haute' }
+  ];
 
   // Récupérer la liste des actualités
   useEffect(() => {
@@ -40,16 +53,21 @@ const NewsManagement = () => {
     e.preventDefault();
     
     // Validation côté client
-    if (!formData.title || !formData.description || !formData.category || !formData.importance) {
+    if (!formData.title || !formData.description || !formData.category || formData.importance === '') {
       setError('Tous les champs sont obligatoires');
       return;
     }
 
     try {
+      const submissionData = {
+        ...formData,
+        importance: parseInt(formData.importance)
+      };
+
       if (isEditing) {
-        await axios.put(`/api/admin/news/${editingId}`, formData);
+        await axios.put(`/api/admin/news/${editingId}`, submissionData);
       } else {
-        await axios.post('/api/admin/news', formData);
+        await axios.post('/api/admin/news', submissionData);
       }
       
       fetchNews();
@@ -69,7 +87,7 @@ const NewsManagement = () => {
       title: newsItem.title,
       description: newsItem.description,
       category: newsItem.category,
-      importance: newsItem.importance
+      importance: newsItem.importance.toString()
     });
     setEditingId(newsItem.id);
     setIsEditing(true);
@@ -102,7 +120,7 @@ const NewsManagement = () => {
     setEditingId(null);
   };
 
-  // Gestion du chargement
+  // Rendu du chargement
   if (loading && !isAdding && !isEditing) {
     return (
       <div className="flex min-h-screen">
@@ -121,6 +139,7 @@ const NewsManagement = () => {
       <div className="ml-64 flex-1 p-6 bg-gray-100">
         <h1 className="text-3xl font-bold mb-6">Gestion des Actualités</h1>
 
+        {/* Gestion des erreurs */}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
@@ -162,10 +181,9 @@ const NewsManagement = () => {
                 className="border p-2 rounded"
               >
                 <option value="">Catégorie</option>
-                <option value="Festival">Festival</option>
-                <option value="Artiste">Artiste</option>
-                <option value="Concert">Concert</option>
-                <option value="Événement">Événement</option>
+                {CATEGORIES.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
               </select>
               <select
                 value={formData.importance}
@@ -174,9 +192,9 @@ const NewsManagement = () => {
                 className="border p-2 rounded"
               >
                 <option value="">Importance</option>
-                <option value="Faible">Faible</option>
-                <option value="Moyenne">Moyenne</option>
-                <option value="Haute">Haute</option>
+                {IMPORTANCES.map(imp => (
+                  <option key={imp.value} value={imp.value}>{imp.label}</option>
+                ))}
               </select>
             </div>
             <textarea
@@ -221,7 +239,10 @@ const NewsManagement = () => {
                 <tr key={item.id} className="border-b">
                   <td className="p-3">{item.title}</td>
                   <td className="p-3">{item.category}</td>
-                  <td className="p-3">{item.importance}</td>
+                  <td className="p-3">
+                    {item.importance_label || 
+                     ['Faible', 'Moyenne', 'Haute', 'Très Haute'][item.importance]}
+                  </td>
                   <td className="p-3">
                     <button 
                       onClick={() => handleEdit(item)}

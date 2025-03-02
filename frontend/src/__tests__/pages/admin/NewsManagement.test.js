@@ -38,10 +38,33 @@ describe('NewsManagement', () => {
 
   test('renders loading message initially', () => {
     render(<NewsManagement />);
-    expect(screen.getByText('Chargement...')).toBeInTheDocument();
+    // Vérifier la présence du spinner par sa classe CSS
+    const spinner = document.querySelector('.animate-spin');
+    expect(spinner).toBeInTheDocument();
   });
 
   test('renders news list after loading', async () => {
+    // Mise à jour du mockNews avec des valeurs numériques pour "importance"
+    const mockNews = [
+      {
+        id: 1,
+        title: 'Test News 1',
+        description: 'Description 1',
+        category: 'Festival',
+        importance: 2  // 2 correspond à "Haute"
+      },
+      {
+        id: 2,
+        title: 'Test News 2',
+        description: 'Description 2',
+        category: 'Artiste',
+        importance: 1  // 1 correspond à "Moyenne"
+      }
+    ];
+  
+    // On simule l'appel API avec ce nouveau mockNews
+    axios.get.mockResolvedValue({ data: mockNews });
+    
     render(<NewsManagement />);
     
     await waitFor(() => {
@@ -55,6 +78,7 @@ describe('NewsManagement', () => {
     expect(screen.getByText('Haute')).toBeInTheDocument();
     expect(screen.getByText('Moyenne')).toBeInTheDocument();
   });
+  
 
   test('shows add news form when button is clicked', async () => {
     render(<NewsManagement />);
@@ -83,7 +107,7 @@ describe('NewsManagement', () => {
         id: 3, 
         title: 'New News', 
         category: 'Festival',
-        importance: 'Haute'
+        importance: 2  // Valeur numérique pour "Haute"
       } 
     });
     
@@ -106,32 +130,53 @@ describe('NewsManagement', () => {
     // Suppose que les selects sont affichés dans le formulaire (ordre: catégorie, importance)
     const formSelects = within(screen.getByPlaceholderText("Titre de l'actualité").closest('form')).getAllByRole('combobox');
     fireEvent.change(formSelects[0], { target: { value: 'Festival' } });
-    fireEvent.change(formSelects[1], { target: { value: 'Haute' } });
+    // On passe la valeur "2" pour représenter "Haute"
+    fireEvent.change(formSelects[1], { target: { value: '2' } });
     
     fireEvent.click(screen.getByText('Enregistrer'));
     
     await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith('/api/news', expect.objectContaining({
+      expect(axios.post).toHaveBeenCalledWith('/api/admin/news', expect.objectContaining({
         title: 'New News',
         category: 'Festival',
-        importance: 'Haute'
+        importance: 2
       }));
     });
   });
+  
 
   test('deletes a news item', async () => {
+    // S'assurer que window.confirm renvoie true
+    window.confirm = jest.fn(() => true);
+    
+    // Simuler une réponse réussie de l'API pour le chargement initial
+    axios.get.mockResolvedValue({
+      data: [
+        { id: 1, title: 'Test News 1', category: 'Festival', importance: 'Haute' },
+        { id: 2, title: 'Test News 2', category: 'Artiste', importance: 'Moyenne' }
+      ]
+    });
+    
+    // Simuler une réponse réussie pour la suppression
     axios.delete.mockResolvedValue({});
     
     render(<NewsManagement />);
     
+    // Attendre que le contenu soit chargé
     await waitFor(() => {
-      expect(screen.getAllByText('Supprimer')[0]).toBeInTheDocument();
+      expect(screen.getByText('Test News 1')).toBeInTheDocument();
     });
     
-    fireEvent.click(screen.getAllByText('Supprimer')[0]);
+    // Cliquer sur le premier bouton de suppression
+    const deleteButtons = screen.getAllByText('Supprimer');
+    fireEvent.click(deleteButtons[0]);
     
+    // Vérifier que la confirmation a été demandée
+    expect(window.confirm).toHaveBeenCalled();
+    
+    // Vérifier que axios.delete a été appelé avec la bonne URL
     await waitFor(() => {
-      expect(axios.delete).toHaveBeenCalledWith('/api/news/1');
+      expect(axios.delete).toHaveBeenCalledWith('/api/admin/news/1');
     });
   });
 

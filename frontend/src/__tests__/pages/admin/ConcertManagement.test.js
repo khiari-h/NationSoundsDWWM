@@ -218,7 +218,7 @@ describe('Gestion des Concerts', () => {
     // Vérifications
     await waitFor(() => {
       expect(mockConfirm).toHaveBeenCalled();
-      expect(axios.delete).toHaveBeenCalledWith('/admin/concerts/1'); // Correspond à l'URL réelle
+      expect(axios.delete).toHaveBeenCalledWith('/api/admin/concerts/1'); // Correspond à l'URL réelle
       expect(axios.get).toHaveBeenCalledTimes(2);
     });
   });

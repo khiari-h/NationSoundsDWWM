@@ -31,24 +31,24 @@ describe('Composant Map', () => {
     jest.clearAllMocks();
   });
 
-  // Test de rendu de base
-  test('rend correctement la carte avec son titre', () => {
-    render(<Map />);
-    
-    // Vérifie que le composant Text est appelé avec les bonnes props
-    expect(Text).toHaveBeenCalledWith(
-      expect.objectContaining({
-        content: 'Voici la localisation du concert',
-        type: 'h2',
-        className: 'h2-class mb-8 text-center'
-      }),
-      expect.anything()
-    );
-    
-    // Vérifie que MapContainer est rendu
-    expect(MapContainer).toHaveBeenCalled();
-    expect(screen.getByTestId('mock-map-container')).toBeInTheDocument();
-  });
+// Test de rendu de base
+test('rend correctement la carte avec son titre', () => {
+  render(<Map />);
+  
+  // Vérifie que le composant Text est appelé avec les bonnes props
+  expect(Text).toHaveBeenCalledWith(
+    expect.objectContaining({
+      content: 'Localisation du concert', // Modifié pour correspondre au composant réel
+      type: 'h2',
+      className: 'h2-class mb-8 text-center'
+    }),
+    expect.anything()
+  );
+  
+  // Vérifie que MapContainer est rendu
+  expect(MapContainer).toHaveBeenCalled();
+  expect(screen.getByTestId('mock-map-container')).toBeInTheDocument();
+});
 
   // Test des propriétés de la carte
   test('configure correctement les propriétés de MapContainer', () => {

@@ -8,6 +8,12 @@ class News extends Model
 {
     use HasFactory;
 
+    // Constantes pour les niveaux d'importance
+    const IMPORTANCE_FAIBLE = 0;
+    const IMPORTANCE_MOYENNE = 1;
+    const IMPORTANCE_HAUTE = 2;
+    const IMPORTANCE_TRES_HAUTE = 3;
+
     protected $fillable = [
         'title',
         'description',
@@ -15,28 +21,23 @@ class News extends Model
         'importance'
     ];
 
-    // Accesseur pour convertir l'importance en texte
-    public function getImportanceAttribute($value)
+    // Méthode pour obtenir le libellé de l'importance
+    public function getImportanceLabelAttribute()
     {
-        $importanceMap = [
-            0 => 'Faible',
-            1 => 'Moyenne',
-            2 => 'Haute'
-        ];
-        return $importanceMap[$value] ?? 'Faible';
+        return match($this->importance) {
+            self::IMPORTANCE_FAIBLE => 'Faible',
+            self::IMPORTANCE_MOYENNE => 'Moyenne',
+            self::IMPORTANCE_HAUTE => 'Haute',
+            self::IMPORTANCE_TRES_HAUTE => 'Très Haute',
+            default => 'Faible'
+        };
     }
 
-    // Mutateur pour convertir l'importance en entier
-    public function setImportanceAttribute($value)
-    {
-        $importanceMap = [
-            'Faible' => 0,
-            'Moyenne' => 1,
-            'Haute' => 2
-        ];
-        $this->attributes['importance'] = $importanceMap[$value] ?? 0;
-    }
+    // Assure que l'importance est toujours un entier
+    protected $casts = [
+        'importance' => 'integer'
+    ];
 
-    // Permet de masquer la valeur réelle de l'importance lors de la sérialisation
-    protected $appends = ['importance'];
+   
+    protected $appends = ['importance_label'];
 }
