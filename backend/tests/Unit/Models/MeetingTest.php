@@ -6,6 +6,7 @@ use App\Models\Artist;
 use App\Models\Meeting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Carbon\Carbon;
 
 class MeetingTest extends TestCase
 {
@@ -14,7 +15,6 @@ class MeetingTest extends TestCase
     /** @test */
     public function it_has_fillable_attributes()
     {
-        // Vérifier que les attributs attendus sont bien fillable
         $meeting = new Meeting();
         $fillable = $meeting->getFillable();
 
@@ -33,7 +33,6 @@ class MeetingTest extends TestCase
     /** @test */
     public function it_has_date_cast()
     {
-        // Vérifier que l'attribut date est bien cast en type date
         $meeting = new Meeting();
         $casts = $meeting->getCasts();
 
@@ -44,13 +43,13 @@ class MeetingTest extends TestCase
     /** @test */
     public function it_belongs_to_artist()
     {
-        // Créer un artiste et une rencontre
+        // Créer un artiste
         $artist = Artist::factory()->create();
+        // Créer un meeting associé à cet artiste
         $meeting = Meeting::factory()->create([
             'artist_id' => $artist->id
         ]);
 
-        // Vérifier que la relation existe
         $this->assertInstanceOf(Artist::class, $meeting->artist);
         $this->assertEquals($artist->id, $meeting->artist->id);
     }
@@ -58,11 +57,14 @@ class MeetingTest extends TestCase
     /** @test */
     public function meeting_date_is_a_carbon_instance()
     {
+        // Créer un artiste pour satisfaire la contrainte de clé étrangère
+        $artist = Artist::factory()->create();
         $meeting = Meeting::factory()->create([
+            'artist_id' => $artist->id,
             'date' => '2023-12-31'
         ]);
         
-        $this->assertInstanceOf(\Carbon\Carbon::class, $meeting->date);
+        $this->assertInstanceOf(Carbon::class, $meeting->date);
         $this->assertEquals('2023-12-31', $meeting->date->toDateString());
     }
 }
