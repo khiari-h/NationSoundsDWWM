@@ -6,7 +6,7 @@ import { useResponsiveDisplay } from '../../hooks/useResponsiveDisplay';
 import Button from '../../component/atoms/Button';
 import NewsCard from '../../component/molecules/NewsCard';
 import Text from '../../component/atoms/Text';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 // Mocks pour les dépendances
 jest.mock('../../config/axiosConfig');

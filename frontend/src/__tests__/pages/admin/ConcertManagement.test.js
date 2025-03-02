@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act } from 'react';
 import ConcertManagement from '../../../component/pages/admin/ConcertManagement';
 import axios from '../../../config/axiosConfig';
 
@@ -48,25 +49,27 @@ describe('Gestion des Concerts', () => {
   });
 
   test('Affiche le spinner de chargement initial', async () => {
-    render(<ConcertManagement />);
+    // Garder la promesse non résolue pour conserver l'état de chargement
+    axios.get.mockImplementationOnce(() => new Promise(() => {}));
     
-    // Vérification de la sidebar mockée
-    expect(screen.getByTestId('mock-sidebar')).toBeInTheDocument();
+    await act(async () => {
+      render(<ConcertManagement />);
+    });
     
-    // Recherche du spinner par sa classe ou son comportement
-    const spinner = screen.getByTestId('mock-sidebar').nextElementSibling;
+    // Trouver le conteneur du spinner
+    const spinnerContainer = screen.getByTestId('mock-sidebar').nextElementSibling;
+    expect(spinnerContainer).toHaveClass('flex', 'items-center', 'justify-center');
     
-    // Vérification que le conteneur du spinner a les classes appropriées
-    expect(spinner).toHaveClass('flex', 'items-center', 'justify-center');
-    
-    // Trouver l'élément avec l'animation de spin
-    const spinnerAnimation = spinner.querySelector('div[class*="animate-spin"]');
-    expect(spinnerAnimation).toBeInTheDocument();
-    expect(spinnerAnimation).toHaveClass('animate-spin');
+    // Trouver le spinner lui-même en utilisant sa classe
+    const spinner = spinnerContainer.querySelector('.animate-spin');
+    expect(spinner).toBeInTheDocument();
+    expect(spinner).toHaveClass('animate-spin');
   });
 
   test('Affiche la liste des concerts après chargement', async () => {
-    render(<ConcertManagement />);
+    await act(async () => {
+      render(<ConcertManagement />);
+    });
     
     // Attente et vérification du titre de la page
     await waitFor(() => {
@@ -81,13 +84,18 @@ describe('Gestion des Concerts', () => {
   });
 
   test('Ouvre le formulaire d\'ajout de concert', async () => {
-    render(<ConcertManagement />);
+    await act(async () => {
+      render(<ConcertManagement />);
+    });
     
     // Attente et clic sur le bouton "Ajouter un Concert"
     await waitFor(() => {
       const boutonAjout = screen.getByText('Ajouter un Concert');
       expect(boutonAjout).toBeInTheDocument();
-      fireEvent.click(boutonAjout);
+    });
+    
+    await act(async () => {
+      fireEvent.click(screen.getByText('Ajouter un Concert'));
     });
     
     // Vérification des champs du formulaire
@@ -115,12 +123,18 @@ describe('Gestion des Concerts', () => {
       .mockResolvedValueOnce({ data: concertsMock })
       .mockResolvedValueOnce({ data: [...concertsMock, nouveauConcert] });
 
-    render(<ConcertManagement />);
+    await act(async () => {
+      render(<ConcertManagement />);
+    });
     
     // Ouverture du formulaire d'ajout
     await waitFor(() => {
       const boutonAjout = screen.getByText('Ajouter un Concert');
-      fireEvent.click(boutonAjout);
+      expect(boutonAjout).toBeInTheDocument();
+    });
+    
+    await act(async () => {
+      fireEvent.click(screen.getByText('Ajouter un Concert'));
     });
     
     // Remplissage du formulaire
@@ -129,14 +143,17 @@ describe('Gestion des Concerts', () => {
     const descriptionInput = await screen.findByPlaceholderText('Description');
     const typeInput = await screen.findByPlaceholderText('Type de concert');
     
-    fireEvent.change(nomInput, { target: { value: 'Nouveau Concert Jazz' } });
-    fireEvent.change(lieuInput, { target: { value: 'Salle Pleyel' } });
-    fireEvent.change(descriptionInput, { target: { value: 'Soirée jazz exceptionnelle' } });
-    fireEvent.change(typeInput, { target: { value: 'Jazz' } });
+    await act(async () => {
+      fireEvent.change(nomInput, { target: { value: 'Nouveau Concert Jazz' } });
+      fireEvent.change(lieuInput, { target: { value: 'Salle Pleyel' } });
+      fireEvent.change(descriptionInput, { target: { value: 'Soirée jazz exceptionnelle' } });
+      fireEvent.change(typeInput, { target: { value: 'Jazz' } });
+    });
     
     // Soumission du formulaire
-    const boutonEnregistrer = screen.getByText('Ajouter');
-    fireEvent.click(boutonEnregistrer);
+    await act(async () => {
+      fireEvent.click(screen.getByText('Ajouter'));
+    });
     
     // Vérifications
     await waitFor(() => {
@@ -164,13 +181,18 @@ describe('Gestion des Concerts', () => {
       } 
     });
     
-    render(<ConcertManagement />);
+    await act(async () => {
+      render(<ConcertManagement />);
+    });
     
     // Attente et ouverture du mode édition
     await waitFor(() => {
       const boutonsModifier = screen.getAllByText('Modifier');
       expect(boutonsModifier[0]).toBeInTheDocument();
-      fireEvent.click(boutonsModifier[0]);
+    });
+    
+    await act(async () => {
+      fireEvent.click(screen.getAllByText('Modifier')[0]);
     });
     
     // Vérification du pré-remplissage
@@ -178,11 +200,14 @@ describe('Gestion des Concerts', () => {
     expect(nomInput).toHaveValue('Concert Rock Epic');
     
     // Modification du nom
-    fireEvent.change(nomInput, { target: { value: 'Concert Rock Modifié' } });
+    await act(async () => {
+      fireEvent.change(nomInput, { target: { value: 'Concert Rock Modifié' } });
+    });
     
     // Soumission de la modification
-    const boutonsEnregistrer = screen.getAllByText('Modifier');
-    fireEvent.click(boutonsEnregistrer[0]); // Utiliser le premier bouton Modifier
+    await act(async () => {
+      fireEvent.click(screen.getAllByText('Modifier')[0]); // Utiliser le premier bouton Modifier
+    });
     
     // Vérifications
     await waitFor(() => {
@@ -206,13 +231,18 @@ describe('Gestion des Concerts', () => {
       .mockResolvedValueOnce({ data: concertsMock })
       .mockResolvedValueOnce({ data: [concertsMock[1]] });
   
-    render(<ConcertManagement />);
+    await act(async () => {
+      render(<ConcertManagement />);
+    });
     
     // Attente et déclenchement de la suppression
     await waitFor(() => {
       const boutonsSuppression = screen.getAllByText('Supprimer');
       expect(boutonsSuppression[0]).toBeInTheDocument();
-      fireEvent.click(boutonsSuppression[0]);
+    });
+    
+    await act(async () => {
+      fireEvent.click(screen.getAllByText('Supprimer')[0]);
     });
     
     // Vérifications
@@ -227,7 +257,9 @@ describe('Gestion des Concerts', () => {
     // Simulation d'une erreur lors du chargement
     axios.get.mockRejectedValueOnce(new Error('Erreur de réseau'));
 
-    render(<ConcertManagement />);
+    await act(async () => {
+      render(<ConcertManagement />);
+    });
     
     // Vérification du message d'erreur
     await waitFor(() => {

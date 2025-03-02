@@ -4,7 +4,7 @@ import Footer from '../../component/organisms/Footer';
 import axios from '../../config/axiosConfig';
 import Text from '../../component/atoms/Text';
 import NavItem from '../../component/molecules/NavItem';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 // Mocks
 jest.mock('../../config/axiosConfig');

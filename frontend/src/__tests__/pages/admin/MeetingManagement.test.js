@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act } from 'react';
 import MeetingManagement from '../../../component/pages/admin/MeetingManagement';
 import axios from '../../../config/axiosConfig';
 
@@ -57,16 +58,28 @@ describe('MeetingManagement', () => {
     });
   });
 
-  test('renders loading message initially', () => {
-    render(<MeetingManagement />);
+  test('renders loading message initially', async () => {
+    // Suspendre la résolution des promesses pour garder l'état de chargement
+    axios.get.mockImplementationOnce(() => new Promise(() => {}));
     
-    // Vérifier la présence du spinner
-    const spinner = document.querySelector('.animate-spin');
+    await act(async () => {
+      render(<MeetingManagement />);
+    });
+    
+    // Trouver le conteneur du spinner
+    const spinnerContainer = screen.getByTestId('mock-sidebar').nextElementSibling;
+    expect(spinnerContainer).toHaveClass('flex', 'items-center', 'justify-center');
+    
+    // Trouver le spinner lui-même en utilisant sa classe
+    const spinner = spinnerContainer.querySelector('.animate-spin');
     expect(spinner).toBeInTheDocument();
+    expect(spinner).toHaveClass('animate-spin');
   });
 
   test('renders meetings list after loading', async () => {
-    render(<MeetingManagement />);
+    await act(async () => {
+      render(<MeetingManagement />);
+    });
     
     await waitFor(() => {
       expect(screen.getByText('Gestion des Rencontres Artistes')).toBeInTheDocument();
@@ -79,13 +92,17 @@ describe('MeetingManagement', () => {
   });
 
   test('shows add meeting form when button is clicked', async () => {
-    render(<MeetingManagement />);
+    await act(async () => {
+      render(<MeetingManagement />);
+    });
     
     await waitFor(() => {
       expect(screen.getByText('Ajouter une Rencontre')).toBeInTheDocument();
     });
     
-    fireEvent.click(screen.getByText('Ajouter une Rencontre'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Ajouter une Rencontre'));
+    });
     
     expect(screen.getByText('Sélectionner un artiste')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Titre de la rencontre')).toBeInTheDocument();
@@ -103,38 +120,48 @@ describe('MeetingManagement', () => {
       } 
     });
     
-    render(<MeetingManagement />);
+    await act(async () => {
+      render(<MeetingManagement />);
+    });
     
     await waitFor(() => {
       expect(screen.getByText('Ajouter une Rencontre')).toBeInTheDocument();
     });
     
     // Clique sur le bouton pour afficher le formulaire d'ajout
-    fireEvent.click(screen.getByText('Ajouter une Rencontre'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Ajouter une Rencontre'));
+    });
     
     // Remplit le formulaire
-    fireEvent.change(screen.getByPlaceholderText("Titre de la rencontre"), {
-      target: { value: 'New Meeting' }
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText("Titre de la rencontre"), {
+        target: { value: 'New Meeting' }
+      });
+      
+      fireEvent.change(screen.getByPlaceholderText('Lieu'), {
+        target: { value: 'New Venue' }
+      });
+      
+      fireEvent.change(screen.getByPlaceholderText('Description'), {
+        target: { value: 'New Description' }
+      });
+      
+      // Sélection de l'artiste : on récupère le <select> en ciblant l'étiquette "Sélectionner un artiste"
+      const artistLabel = screen.getByText('Sélectionner un artiste');
+      const artistSelect = artistLabel.closest('select');
+      fireEvent.change(artistSelect, { target: { value: '1' } });
+      
+      // Sélection du type de rencontre : on récupère le <select> en ciblant l'étiquette "Type de rencontre"
+      const typeLabel = screen.getByText('Type de rencontre');
+      const typeSelect = typeLabel.closest('select');
+      fireEvent.change(typeSelect, { target: { value: 'Meet & Greet' } });
     });
-    fireEvent.change(screen.getByPlaceholderText('Lieu'), {
-      target: { value: 'New Venue' }
-    });
-    fireEvent.change(screen.getByPlaceholderText('Description'), {
-      target: { value: 'New Description' }
-    });
-    
-    // Sélection de l'artiste : on récupère le <select> en ciblant l'étiquette "Sélectionner un artiste"
-    const artistLabel = screen.getByText('Sélectionner un artiste');
-    const artistSelect = artistLabel.closest('select');
-    fireEvent.change(artistSelect, { target: { value: '1' } });
-    
-    // Sélection du type de rencontre : on récupère le <select> en ciblant l'étiquette "Type de rencontre"
-    const typeLabel = screen.getByText('Type de rencontre');
-    const typeSelect = typeLabel.closest('select');
-    fireEvent.change(typeSelect, { target: { value: 'Meet & Greet' } });
     
     // Soumission du formulaire
-    fireEvent.click(screen.getByText('Enregistrer'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Enregistrer'));
+    });
     
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith('/api/admin/meetings', expect.objectContaining({
@@ -144,7 +171,6 @@ describe('MeetingManagement', () => {
     });
   });
   
-
   test('deletes a meeting', async () => {
     // Configuration des mocks
     window.confirm = jest.fn().mockReturnValue(true);
@@ -163,7 +189,9 @@ describe('MeetingManagement', () => {
     axios.delete.mockResolvedValue({ data: {} });
     
     // Rendu du composant
-    render(<MeetingManagement />);
+    await act(async () => {
+      render(<MeetingManagement />);
+    });
     
     // Attendre que le composant finisse de charger et affiche les boutons
     await waitFor(() => {
@@ -171,8 +199,9 @@ describe('MeetingManagement', () => {
     });
     
     // Simuler le clic sur le bouton de suppression
-    const deleteButtons = screen.getAllByText('Supprimer');
-    fireEvent.click(deleteButtons[0]);
+    await act(async () => {
+      fireEvent.click(screen.getAllByText('Supprimer')[0]);
+    });
     
     // Vérifier que window.confirm a été appelé
     expect(window.confirm).toHaveBeenCalled();
@@ -189,7 +218,9 @@ describe('MeetingManagement', () => {
   test('shows error message when API call fails', async () => {
     axios.get.mockImplementation(() => Promise.reject(new Error('API Error')));
     
-    render(<MeetingManagement />);
+    await act(async () => {
+      render(<MeetingManagement />);
+    });
     
     await waitFor(() => {
       expect(screen.getByText('Erreur lors du chargement des données')).toBeInTheDocument();

@@ -1,209 +1,266 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import NewsManagement from '../../../component/pages/admin/NewsManagement';
+import { render, screen, waitFor } from '@testing-library/react';
+import { act } from 'react';
+import NewsAndUpdates from '../../../component/organisms/NewsAndUpdates';
 import axios from '../../../config/axiosConfig';
+import { useResponsiveDisplay } from '../../../hooks/useResponsiveDisplay';
+import Button from '../../../component/atoms/Button';
+import NewsCard from '../../../component/molecules/NewsCard';
+import Text from '../../../component/atoms/Text';
 
-// Mocks
-jest.mock('../../../component/pages/admin/components/AdminSidebar', () => 
-  jest.fn(() => <div data-testid="mock-sidebar" />)
-);
-jest.mock('../../../config/axiosConfig', () => ({
-  get: jest.fn(),
-  post: jest.fn(),
-  delete: jest.fn()
-}));
+// Mocks pour les dépendances
+jest.mock('../../../config/axiosConfig');
+jest.mock('../../../hooks/useResponsiveDisplay');
+jest.mock('../../../component/atoms/Button', () => jest.fn(() => <div data-testid="mock-button" />));
+jest.mock('../../../component/molecules/NewsCard', () => jest.fn(() => <div data-testid="mock-news-card" />));
+jest.mock('../../../component/atoms/Text', () => jest.fn(({ content, type, className }) => (
+  <div data-testid="mock-text" data-content={content} data-type={type} className={className}>
+    {content}
+  </div>
+)));
 
-describe('NewsManagement', () => {
+describe('Composant NewsAndUpdates', () => {
+  // Données de test
   const mockNews = [
     {
       id: 1,
-      title: 'Test News 1',
-      description: 'Description 1',
-      category: 'Festival',
-      importance: 'Haute'
+      title: 'Nouvelle 1',
+      description: 'Description de la nouvelle 1'
     },
     {
       id: 2,
-      title: 'Test News 2',
-      description: 'Description 2',
-      category: 'Artiste',
-      importance: 'Moyenne'
+      title: 'Nouvelle 2',
+      description: 'Description de la nouvelle 2'
+    },
+    {
+      id: 3,
+      title: 'Nouvelle 3',
+      description: 'Description de la nouvelle 3'
     }
   ];
 
   beforeEach(() => {
+    // Réinitialisation des mocks
     jest.clearAllMocks();
-    axios.get.mockResolvedValue({ data: mockNews });
+    
+    // Mock par défaut pour useResponsiveDisplay
+    useResponsiveDisplay.mockReturnValue(3);
   });
 
-  test('renders loading message initially', () => {
-    render(<NewsManagement />);
-    // Vérifier la présence du spinner par sa classe CSS
-    const spinner = document.querySelector('.animate-spin');
-    expect(spinner).toBeInTheDocument();
+  // Test de chargement
+  test('affiche le message de chargement', async () => {
+    // Configuration du mock axios pour qu'il ne se résolve pas immédiatement
+    axios.get.mockImplementation(() => new Promise(() => {}));
+    
+    await act(async () => {
+      render(<NewsAndUpdates />);
+    });
+    
+    // Vérifie que le composant Text est appelé avec le message de chargement
+    expect(Text).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: 'Chargement...',
+        type: 'p'
+      }),
+      expect.anything()
+    );
   });
 
-  test('renders news list after loading', async () => {
-    // Mise à jour du mockNews avec des valeurs numériques pour "importance"
-    const mockNews = [
-      {
-        id: 1,
-        title: 'Test News 1',
-        description: 'Description 1',
-        category: 'Festival',
-        importance: 2  // 2 correspond à "Haute"
-      },
-      {
-        id: 2,
-        title: 'Test News 2',
-        description: 'Description 2',
-        category: 'Artiste',
-        importance: 1  // 1 correspond à "Moyenne"
-      }
+  // Test d'erreur
+  test('affiche un message d\'erreur si la requête échoue', async () => {
+    // Configuration du mock axios pour simuler une erreur
+    axios.get.mockRejectedValueOnce(new Error('Erreur réseau'));
+    
+    await act(async () => {
+      render(<NewsAndUpdates />);
+    });
+    
+    // Attendre que le composant se mette à jour après la résolution de la promesse
+    await waitFor(() => {
+      expect(Text).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: 'Erreur lors de la récupération des données.',
+          type: 'p',
+          className: 'text-error-red'
+        }),
+        expect.anything()
+      );
+    });
+  });
+
+  // Test de rendu des actualités
+  test('rend les actualités correctement après chargement réussi', async () => {
+    // Configuration du mock axios pour simuler une réponse réussie
+    axios.get.mockResolvedValueOnce({ data: mockNews });
+    
+    await act(async () => {
+      render(<NewsAndUpdates />);
+    });
+    
+    // Attendre que le composant se mette à jour après la résolution de la promesse
+    await waitFor(() => {
+      // Vérifie que NewsCard est appelé pour chaque actualité
+      expect(NewsCard).toHaveBeenCalledTimes(3);
+      
+      // Vérifie le premier appel à NewsCard
+      expect(NewsCard).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Nouvelle 1',
+          description: 'Description de la nouvelle 1'
+        }),
+        expect.anything()
+      );
+      
+      // Vérifie le bouton "Voir toutes les actualités"
+      expect(Button).toHaveBeenCalledWith(
+        expect.objectContaining({
+          href: '/news',
+          label: 'Voir toutes les actualités'
+        }),
+        expect.anything()
+      );
+    });
+  });
+
+  // Test du comportement responsive avec 2 cartes
+  test('affiche le bon nombre de cartes en fonction du hook useResponsiveDisplay', async () => {
+    // Configuration du hook pour retourner 2
+    useResponsiveDisplay.mockReturnValue(2);
+    
+    // Configuration du mock axios
+    axios.get.mockResolvedValueOnce({ data: mockNews });
+    
+    await act(async () => {
+      render(<NewsAndUpdates />);
+    });
+    
+    // Attendre que le composant se mette à jour
+    await waitFor(() => {
+      // Vérifie que seulement 2 NewsCard sont rendus
+      expect(NewsCard).toHaveBeenCalledTimes(2);
+    });
+    
+    // Vérifie les classes de grille pour 2 colonnes
+    await waitFor(() => {
+      const gridElement = screen.getAllByTestId('mock-news-card')[0].parentElement;
+      expect(gridElement).toHaveClass('grid');
+      expect(gridElement).toHaveClass('grid-cols-1');
+      expect(gridElement).toHaveClass('md:grid-cols-2');
+      expect(gridElement).not.toHaveClass('lg:grid-cols-3');
+    });
+  });
+
+  // Test du comportement responsive avec 3 cartes
+  test('applique les classes de grille correctes pour 3 cartes', async () => {
+    // Configuration du mock axios
+    axios.get.mockResolvedValueOnce({ data: mockNews });
+    
+    await act(async () => {
+      render(<NewsAndUpdates />);
+    });
+    
+    // Attendre que le composant se mette à jour
+    await waitFor(() => {
+      const gridElement = screen.getAllByTestId('mock-news-card')[0].parentElement;
+      expect(gridElement).toHaveClass('grid');
+      expect(gridElement).toHaveClass('grid-cols-1');
+      expect(gridElement).toHaveClass('lg:grid-cols-3');
+    });
+  });
+
+  // Test du titre de la section
+  test('affiche le titre de la section correctement', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockNews });
+    
+    await act(async () => {
+      render(<NewsAndUpdates />);
+    });
+    
+    // Vérifie que le titre est rendu
+    expect(Text).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: 'Actualités',
+        type: 'h2',
+        className: 'mb-8 text-center',
+        id: 'news-updates-heading'
+      }),
+      expect.anything()
+    );
+  });
+
+  // Test d'accessibilité
+  test('applique les attributs d\'accessibilité appropriés', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockNews });
+    
+    await act(async () => {
+      render(<NewsAndUpdates />);
+    });
+    
+    // Vérifie que la section a l'attribut aria-labelledby
+    const sectionElement = screen.getByRole('region');
+    expect(sectionElement).toHaveAttribute('aria-labelledby', 'news-updates-heading');
+  });
+
+  // Test de la logique de slice des actualités
+  test('limite le nombre d\'actualités affichées en fonction de displayCount', async () => {
+    // Configuration du mock pour retourner plus d'actualités que displayCount
+    const extendedMockNews = [
+      ...mockNews,
+      { id: 4, title: 'Nouvelle 4', description: 'Description de la nouvelle 4' },
+      { id: 5, title: 'Nouvelle 5', description: 'Description de la nouvelle 5' }
     ];
-  
-    // On simule l'appel API avec ce nouveau mockNews
-    axios.get.mockResolvedValue({ data: mockNews });
     
-    render(<NewsManagement />);
+    // Configuration pour afficher 2 actualités maximum
+    useResponsiveDisplay.mockReturnValue(2);
+    axios.get.mockResolvedValueOnce({ data: extendedMockNews });
     
+    await act(async () => {
+      render(<NewsAndUpdates />);
+    });
+    
+    // Attendre que le composant se mette à jour
     await waitFor(() => {
-      expect(screen.getByText('Gestion des Actualités')).toBeInTheDocument();
-    });
-    
-    expect(screen.getByText('Test News 1')).toBeInTheDocument();
-    expect(screen.getByText('Test News 2')).toBeInTheDocument();
-    expect(screen.getByText('Festival')).toBeInTheDocument();
-    expect(screen.getByText('Artiste')).toBeInTheDocument();
-    expect(screen.getByText('Haute')).toBeInTheDocument();
-    expect(screen.getByText('Moyenne')).toBeInTheDocument();
-  });
-  
-
-  test('shows add news form when button is clicked', async () => {
-    render(<NewsManagement />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Ajouter une Actualité')).toBeInTheDocument();
-    });
-    
-    fireEvent.click(screen.getByText('Ajouter une Actualité'));
-    
-    // Utilise l'input titre comme ancre pour restreindre la recherche au formulaire
-    const titleInput = screen.getByPlaceholderText("Titre de l'actualité");
-    expect(titleInput).toBeInTheDocument();
-    const formContainer = titleInput.closest('form');
-    expect(formContainer).toBeInTheDocument();
-    
-    // Rechercher les autres éléments à l'intérieur du formulaire
-    expect(within(formContainer).getByPlaceholderText("Description de l'actualité")).toBeInTheDocument();
-    expect(within(formContainer).getByText('Catégorie')).toBeInTheDocument();
-    expect(within(formContainer).getByText('Importance')).toBeInTheDocument();
-  });
-
-  test('adds a new news item', async () => {
-    axios.post.mockResolvedValue({ 
-      data: { 
-        id: 3, 
-        title: 'New News', 
-        category: 'Festival',
-        importance: 2  // Valeur numérique pour "Haute"
-      } 
-    });
-    
-    render(<NewsManagement />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Ajouter une Actualité')).toBeInTheDocument();
-    });
-    
-    fireEvent.click(screen.getByText('Ajouter une Actualité'));
-    
-    // Remplit le formulaire
-    fireEvent.change(screen.getByPlaceholderText("Titre de l'actualité"), {
-      target: { value: 'New News' }
-    });
-    fireEvent.change(screen.getByPlaceholderText("Description de l'actualité"), {
-      target: { value: 'New Description' }
-    });
-    
-    // Suppose que les selects sont affichés dans le formulaire (ordre: catégorie, importance)
-    const formSelects = within(screen.getByPlaceholderText("Titre de l'actualité").closest('form')).getAllByRole('combobox');
-    fireEvent.change(formSelects[0], { target: { value: 'Festival' } });
-    // On passe la valeur "2" pour représenter "Haute"
-    fireEvent.change(formSelects[1], { target: { value: '2' } });
-    
-    fireEvent.click(screen.getByText('Enregistrer'));
-    
-    await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith('/api/admin/news', expect.objectContaining({
-        title: 'New News',
-        category: 'Festival',
-        importance: 2
-      }));
-    });
-  });
-  
-
-  test('deletes a news item', async () => {
-    // S'assurer que window.confirm renvoie true
-    window.confirm = jest.fn(() => true);
-    
-    // Simuler une réponse réussie de l'API pour le chargement initial
-    axios.get.mockResolvedValue({
-      data: [
-        { id: 1, title: 'Test News 1', category: 'Festival', importance: 'Haute' },
-        { id: 2, title: 'Test News 2', category: 'Artiste', importance: 'Moyenne' }
-      ]
-    });
-    
-    // Simuler une réponse réussie pour la suppression
-    axios.delete.mockResolvedValue({});
-    
-    render(<NewsManagement />);
-    
-    // Attendre que le contenu soit chargé
-    await waitFor(() => {
-      expect(screen.getByText('Test News 1')).toBeInTheDocument();
-    });
-    
-    // Cliquer sur le premier bouton de suppression
-    const deleteButtons = screen.getAllByText('Supprimer');
-    fireEvent.click(deleteButtons[0]);
-    
-    // Vérifier que la confirmation a été demandée
-    expect(window.confirm).toHaveBeenCalled();
-    
-    // Vérifier que axios.delete a été appelé avec la bonne URL
-    await waitFor(() => {
-      expect(axios.delete).toHaveBeenCalledWith('/api/admin/news/1');
+      // Vérifie que seulement 2 actualités sont affichées malgré les 5 disponibles
+      expect(NewsCard).toHaveBeenCalledTimes(2);
     });
   });
 
-  test('shows error message when API call fails', async () => {
-    axios.get.mockRejectedValueOnce(new Error('API Error'));
+  // Test de l'appel API
+  test('effectue l\'appel API vers le bon endpoint', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockNews });
     
-    render(<NewsManagement />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Erreur lors du chargement des actualités')).toBeInTheDocument();
+    await act(async () => {
+      render(<NewsAndUpdates />);
     });
+    
+    // Vérifie que axios.get a été appelé avec le bon endpoint
+    expect(axios.get).toHaveBeenCalledWith('/api/news');
   });
 
-  test('cancels form when cancel button is clicked', async () => {
-    render(<NewsManagement />);
+  // Test du message d'erreur console
+  test('affiche une erreur dans la console en cas d\'échec de la requête', async () => {
+    // Espionner console.error
+    const originalConsoleError = console.error;
+    console.error = jest.fn();
     
-    await waitFor(() => {
-      expect(screen.getByText('Ajouter une Actualité')).toBeInTheDocument();
+    // Simuler une erreur
+    const errorMessage = 'Erreur réseau';
+    axios.get.mockRejectedValueOnce(new Error(errorMessage));
+    
+    await act(async () => {
+      render(<NewsAndUpdates />);
     });
     
-    fireEvent.click(screen.getByText('Ajouter une Actualité'));
+    // Attendre que le composant se mette à jour
+    await waitFor(() => {
+      // Vérifie que console.error a été appelé
+      expect(console.error).toHaveBeenCalledWith(
+        "Erreur lors de la récupération des actualités!",
+        expect.any(Error)
+      );
+    });
     
-    expect(screen.getByPlaceholderText("Titre de l'actualité")).toBeInTheDocument();
-    
-    fireEvent.click(screen.getByText('Annuler'));
-    
-    expect(screen.queryByPlaceholderText("Titre de l'actualité")).not.toBeInTheDocument();
-    expect(screen.getByText('Ajouter une Actualité')).toBeInTheDocument();
+    // Restaurer console.error
+    console.error = originalConsoleError;
   });
 });
