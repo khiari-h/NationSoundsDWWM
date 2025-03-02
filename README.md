@@ -1,194 +1,160 @@
 # NationSounds
 
-NationSounds est un projet de festival de musique qui offre des informations complètes sur les concerts, les rencontres avec les artistes, ainsi que les informations pratiques sur le festival. Il comprend également une carte interactive pour se repérer, avec la localisation des scènes et les concerts en cours.
-
 ## Table des matières
 
 - [Aperçu](#aperçu)
-- [Technologies utilisées](#technologies-utilisées)
+- [Technologies](#technologies)
 - [Architecture](#architecture)
-- [Documentation technique](#documentation-technique)
+- [Veille Technologique](#veille-technologique)
+- [DevOps et Déploiement](#devops-et-déploiement)
 - [Prérequis](#prérequis)
 - [Installation](#installation)
-- [Démarrage](#démarrage)
 - [Tests](#tests)
-- [Déploiement](#déploiement)
-- [Contributions](#contributions)
+- [Contribution](#contribution)
 - [Licence](#licence)
 - [Contact](#contact)
 
 ## Aperçu
 
-NationSounds est une plateforme dédiée à la gestion et à la présentation des événements d'un festival de musique. Elle permet aux utilisateurs de :
+NationSounds est une plateforme de gestion d'événements de festival de musique permettant aux utilisateurs de :
 
-- Consulter les concerts et événements à venir.
-- Obtenir des informations sur les artistes et les rencontres.
-- Visualiser une carte du festival pour se repérer.
-- Voir en temps réel les concerts en cours.
-- S'inscrire à la newsletter pour rester informé.
+- Consulter les concerts et événements
+- Obtenir des informations sur les artistes
+- Visualiser une carte interactive du festival
+- Suivre les concerts en temps réel
+- S'inscrire à la newsletter
 
-L'application dispose également d'une interface d'administration complète permettant de gérer l'ensemble du contenu.
+## Technologies
 
-## Technologies utilisées
+### Frontend
+- React.js (Atomic Design)
+- Cypress (Tests E2E)
+- Jest (Tests unitaires)
 
-- **Front-end** : 
-  - React.js avec architecture Atomic Design
-  - Cypress pour les tests E2E
-  - Jest pour les tests unitaires
-- **Back-end** : 
-  - Laravel (PHP)
-  - MySQL
-  - API RESTful avec Laravel Sanctum pour l'authentification
-- **CI/CD** : Pipeline d'intégration et déploiement continu
-- **Node.js** : Version 20.11.1
-- **Environnement** : Responsive design pour interfaces desktop et mobile
+### Backend
+- Laravel (PHP)
+- MySQL
+- API RESTful 
+- Laravel Sanctum (Authentification)
+
+### Environnement
+- Node.js 20.11.1
+- Design responsive
 
 ## Architecture
 
-L'application suit une architecture moderne et modulaire :
+### Frontend
+- **Atoms** : Composants de base
+- **Molecules** : Combinaisons d'atomes
+- **Organisms** : Assemblages complexes
+- **Templates** : Structures de pages
+- **Pages** : Vues complètes
 
-- **Frontend** : Architecture Atomic Design avec une séparation claire entre :
-  - Atoms (composants de base)
-  - Molecules (combinaisons d'atomes)
-  - Organisms (assemblages complexes)
-  - Templates (structures de pages)
-  - Pages (vues complètes de l'application)
+### Backend
+- Architecture MVC
+- **Modèles** : Entités de données
+- **Contrôleurs** : Logique métier
+- **Middleware** : Authentification
 
-- **Backend** : Architecture MVC (Modèle-Vue-Contrôleur) avec Laravel :
-  - Modèles : Représentent les entités de données (Artists, Concerts, Meetings, etc.)
-  - Contrôleurs : Gèrent la logique métier et les requêtes API
-  - Middleware : Gère l'authentification et les autorisations
+## Veille Technologique
 
-Pour plus de détails, consultez la [documentation d'architecture](./documentation/Architecture.md).
+### Objectifs
+- Suivre les évolutions des technologies utilisées
+- Maintenir la sécurité et les performances
+- Anticiper les mises à jour majeures
 
-## Documentation technique
+### Outils de Veille
+- Dependabot
+- GitHub Alerts
+- Flux RSS spécialisés
+- Newsletters techniques
+  - JavaScript Weekly
+  - PHP Weekly
+  - Security Updates
 
-Une documentation complète est disponible dans le dossier `documentation/` :
+### Stratégie
+- Revue mensuelle des dépendances
+- Analyse des changements de versions
+- Évaluation des impacts potentiels
+- Tests de compatibilité
 
-- [Architecture](./documentation/Architecture.md) - Détails sur l'architecture globale du projet
-- [API Documentation](./documentation/api-documentation.md) - Documentation complète de l'API REST
-- [Database Schema](./documentation/database-schema.md) - Schéma et structure de la base de données
-- [Components Documentation](./documentation/components-documentation.md) - Documentation des composants frontend
-- [Security Guidelines](./documentation/security-guidelines.md) - Directives de sécurité
-- [Testing](./documentation/testing.md) - Stratégies et approches de test
+## DevOps et Déploiement
+
+### Pipeline CI/CD
+- Plateforme : GitHub Actions
+- Étapes automatisées :
+  1. Build
+  2. Tests unitaires
+  3. Tests E2E
+  4. Analyse de sécurité
+  5. Déploiement conditionnel
+
+### Environnements
+- Développement
+- Staging 
+- Production
+
+### Stratégie de Déploiement
+- Déploiement automatisé
+- Rollback en cas d'échec
+- Monitoring des performances
+- Gestion des credentials
+
+### Outils de Monitoring
+- Sentry (suivi des erreurs)
+- New Relic (performances)
+- Uptime Robot (disponibilité)
 
 ## Prérequis
 
-Avant de commencer, assurez-vous d'avoir installé les éléments suivants :
-
-- **Node.js** : Version 20.11.1 ou supérieure
-- **npm** : Inclus avec Node.js
-- **PHP** : Version 8.1 ou supérieure
-- **Composer** : Gestionnaire de dépendances PHP
-- **MySQL** : Version 8.0 ou supérieure
-- **Git** : Pour cloner le dépôt
+- Node.js 20.11.1+
+- npm
+- PHP 8.1+
+- Composer
+- MySQL 8.0+
+- Git
 
 ## Installation
 
-1. **Cloner le dépôt**
-
-   ```bash
-   git clone https://github.com/yourusername/NationSounds.git
-   cd NationSounds
-   ```
-
-2. **Installer les dépendances**
-
-   Pour le front-end (React) :
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-   Pour le back-end (Laravel) :
-   ```bash
-   cd backend
-   composer install
-   npm install
-   ```
-
-3. **Configurer les variables d'environnement**
-
-   Créez un fichier `.env` dans les répertoires frontend et backend à partir des exemples `.env.example` et configurez les variables nécessaires (base de données, API, etc.).
-
-4. **Initialisation de la Base de Données**
-
-   Assurez-vous que vous avez configuré votre base de données dans le fichier `.env` du répertoire backend. Ensuite, utilisez les commandes de migration Laravel pour créer les tables :
-
-   ```bash
-   php artisan migrate
-   php artisan db:seed
-   ```
-
-## Démarrage
-
-**Front-end**
+### Clonage
 ```bash
+git clone https://github.com/votre-username/NationSounds.git
+cd NationSounds
+Dépendances
+bashCopy# Frontend
 cd frontend
-npm start
-```
+npm install
 
-**Back-end**
-```bash
+# Backend
 cd backend
-php artisan serve
-```
+composer install
+npm install
+Configuration
 
-Les applications front-end et back-end devraient maintenant être accessibles via http://localhost:3000 pour le front-end et http://localhost:8000 pour le back-end.
+Créer les fichiers .env
+Configurer les variables d'environnement
+Migrer la base de données
 
-## Tests
-
-### Tests Frontend
-
-#### Tests Unitaires (Jest)
-```bash
-cd frontend
+Tests
+Frontend
+bashCopy# Tests unitaires
 npm run test
-```
 
-#### Tests End-to-End (Cypress)
-Pour lancer Cypress en mode interactif :
-```bash
-cd frontend
-npx cypress open
-```
-
-Pour exécuter Cypress en mode headless (sans interface graphique) :
-```bash
-cd frontend
+# Tests E2E
 npx cypress run
-```
-
-### Tests Backend (PHPUnit)
-
-Pour exécuter tous les tests backend :
-```bash
-cd backend
+Backend
+bashCopy# Tous les tests
 php artisan test
-```
 
-Pour exécuter un groupe spécifique de tests :
-```bash
+# Tests spécifiques
 php artisan test --group=models
-```
+Contribution
 
-Pour plus de détails sur les tests, consultez la [documentation des tests](./documentation/testing.md).
-
-## Déploiement
-
-Le projet utilise une pipeline CI/CD pour le déploiement automatisé. Assurez-vous que toutes les configurations CI/CD sont correctement définies dans les workflows GitHub Actions ou dans un autre outil d'intégration continue que vous utilisez.
-
-## Contributions
-
-Les contributions sont les bienvenues ! Pour contribuer :
-
-1. Fork le projet.
-2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/your-feature`).
-3. Commitez vos modifications (`git commit -m 'Add some feature'`).
-4. Poussez vers la branche (`git push origin feature/your-feature`).
-5. Ouvrez une Pull Request.
-
-Assurez-vous de suivre les conventions de code et d'ajouter des tests pour les nouvelles fonctionnalités.
+Fork du projet
+Créer une branche (feature/ma-fonctionnalite)
+Commiter les modifications
+Pousser la branche
+Ouvrir une Pull Request
 
 ## Licence
 
