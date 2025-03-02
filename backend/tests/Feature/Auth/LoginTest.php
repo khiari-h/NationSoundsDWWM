@@ -11,7 +11,7 @@ class LoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function admin_can_login_with_valid_credentials()
     {
         // Arrange - Créer un utilisateur admin pour le test
@@ -39,7 +39,7 @@ class LoginTest extends TestCase
                  ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function admin_cannot_login_with_invalid_credentials()
     {
         // Arrange - Créer un utilisateur admin pour le test
@@ -62,7 +62,8 @@ class LoginTest extends TestCase
                  ]);
     }
 
-    /** @test */
+  
+    #[\PHPUnit\Framework\Attributes\Test]
     public function login_requires_email_and_password()
     {
         // Act - Tester la connexion sans fournir d'email ni de mot de passe

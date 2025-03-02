@@ -5,7 +5,7 @@ use Tests\TestCase;
 
 class DatabaseConnectionTest extends TestCase
 {
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_connect_to_the_database()
     {
         try {

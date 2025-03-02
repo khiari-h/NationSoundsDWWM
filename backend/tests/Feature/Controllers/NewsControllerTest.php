@@ -11,8 +11,8 @@ class NewsControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-/** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
+
 public function index_returns_all_news()
 {
     // Supprimez toutes les news existantes avant de créer les nouvelles
@@ -33,7 +33,7 @@ public function index_returns_all_news()
              ]);
 }
 
-    /** @test */
+     #[\PHPUnit\Framework\Attributes\Test]
     public function show_returns_single_news()
     {
         $news = News::factory()->create([
@@ -55,7 +55,7 @@ public function index_returns_all_news()
                  ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function show_returns_404_for_non_existent_news()
     {
         $response = $this->getJson('/api/news/9999');
@@ -63,7 +63,7 @@ public function index_returns_all_news()
         $response->assertStatus(404);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function admin_can_create_news()
     {
         $admin = AdminUser::factory()->create();
@@ -91,7 +91,7 @@ public function index_returns_all_news()
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function admin_cannot_create_news_with_invalid_data()
     {
         $admin = AdminUser::factory()->create();
@@ -110,7 +110,7 @@ public function index_returns_all_news()
                  ->assertJsonValidationErrors(['title', 'importance']);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function non_admin_cannot_create_news()
     {
         $newsData = [

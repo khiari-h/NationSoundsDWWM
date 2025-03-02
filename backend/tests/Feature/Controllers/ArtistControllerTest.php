@@ -10,8 +10,8 @@ class ArtistControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function index_returns_all_artists()
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_index_returns_all_artists()
     {
         // Vider la table pour garantir un état propre
         Artist::query()->delete();
@@ -28,10 +28,12 @@ class ArtistControllerTest extends TestCase
                      '*' => ['id', 'name', 'description', 'image_url', 'genre']
                  ]);
     }
-    
 
-    /** @test */
-    public function show_returns_single_artist_with_relations()
+    #[\PHPUnit\Framework\Attributes\Test]
+    /**
+     * Tester l'affichage d'un artiste spécifique avec ses relations
+     */
+    public function test_show_returns_single_artist_with_relations()
     {
         // Création d'un artiste
         $artist = Artist::factory()->create();
@@ -46,8 +48,8 @@ class ArtistControllerTest extends TestCase
                      'description', 
                      'image_url', 
                      'genre',
-                     'concerts',  // Relations chargées
-                     'meetings'   // Relations chargées
+                     'concerts', 
+                     'meetings'  
                  ]);
     }
 }

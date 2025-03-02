@@ -12,7 +12,7 @@ class LogoutTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function admin_can_logout()
     {
         // Arrange - Créer un utilisateur admin
@@ -35,7 +35,7 @@ class LogoutTest extends TestCase
                  ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function verify_token_returns_valid_for_authenticated_user()
     {
         // Arrange - Créer un utilisateur admin
@@ -58,7 +58,8 @@ class LogoutTest extends TestCase
                  ]);
     }
 
-/** @test */
+
+    #[\PHPUnit\Framework\Attributes\Test]
 public function verify_token_returns_invalid_for_unauthenticated_user()
 {
     // Act - Vérifier le token sans authentification
@@ -71,7 +72,8 @@ public function verify_token_returns_invalid_for_unauthenticated_user()
              ]);
 }
 
-    /** @test */
+  
+#[\PHPUnit\Framework\Attributes\Test]
     public function unauthenticated_user_cannot_access_protected_routes()
     {
         // Act - Essayer d'accéder à une route protégée sans authentification

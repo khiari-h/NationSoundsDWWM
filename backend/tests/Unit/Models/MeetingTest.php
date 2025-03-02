@@ -12,7 +12,7 @@ class MeetingTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_fillable_attributes()
     {
         $meeting = new Meeting();
@@ -30,7 +30,8 @@ class MeetingTest extends TestCase
         ], $fillable);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_date_cast()
     {
         $meeting = new Meeting();
@@ -40,7 +41,8 @@ class MeetingTest extends TestCase
         $this->assertEquals('date', $casts['date']);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_belongs_to_artist()
     {
         // Créer un artiste
@@ -54,7 +56,8 @@ class MeetingTest extends TestCase
         $this->assertEquals($artist->id, $meeting->artist->id);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function meeting_date_is_a_carbon_instance()
     {
         // Créer un artiste pour satisfaire la contrainte de clé étrangère

@@ -11,7 +11,7 @@ class ConcertTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_fillable_attributes()
     {
         // Arrange & Act
@@ -30,7 +30,8 @@ class ConcertTest extends TestCase
         ], $concert->getFillable());
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_casts_date_as_date_object()
     {
         // Arrange & Act
@@ -41,7 +42,8 @@ class ConcertTest extends TestCase
         $this->assertEquals('date', $concert->getCasts()['date']);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_create_a_concert()
     {
         // Arrange
@@ -69,7 +71,7 @@ class ConcertTest extends TestCase
     }
 
     
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_update_a_concert()
     {
         // Arrange
@@ -92,7 +94,7 @@ class ConcertTest extends TestCase
         ]);
     }
     
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_be_deleted()
     {
         // Arrange

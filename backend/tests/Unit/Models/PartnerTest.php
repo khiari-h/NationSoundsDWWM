@@ -10,7 +10,7 @@ class PartnerTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_fillable_attributes()
     {
         // Vérifier que les attributs attendus sont bien fillable
@@ -26,7 +26,8 @@ class PartnerTest extends TestCase
         ], $fillable);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_create_partner()
     {
         // Créer un partenaire
@@ -48,7 +49,8 @@ class PartnerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_update_partner()
     {
         // Créer un partenaire
@@ -75,7 +77,8 @@ class PartnerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_delete_partner()
     {
         // Créer un partenaire

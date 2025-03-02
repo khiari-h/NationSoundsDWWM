@@ -10,7 +10,7 @@ class NewsletterControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_can_subscribe_to_newsletter()
     {
         // Données pour l'inscription
@@ -37,7 +37,8 @@ class NewsletterControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function subscribe_validates_input()
     {
         // Données incomplètes
@@ -54,7 +55,8 @@ class NewsletterControllerTest extends TestCase
                  ->assertJsonValidationErrors(['first_name', 'last_name']);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function subscribe_validates_email_format()
     {
         // Données avec un format d'email invalide
@@ -72,7 +74,8 @@ class NewsletterControllerTest extends TestCase
                  ->assertJsonValidationErrors(['email']);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function subscribe_enforces_unique_email()
     {
         // Créer un abonné existant
@@ -97,7 +100,8 @@ class NewsletterControllerTest extends TestCase
                  ->assertJsonValidationErrors(['email']);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function unsubscribe_method_is_not_implemented()
     {
         // Tenter d'appeler une méthode de désinscription (qui n'existe pas)

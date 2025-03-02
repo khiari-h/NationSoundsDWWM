@@ -10,7 +10,7 @@ use App\Models\News;
 class SecurityTest extends TestCase
 {
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_prevents_sql_injection_in_news_search()
     {
         $response = $this->get('/api/news?query=1;DROP TABLE users;');
@@ -19,7 +19,8 @@ class SecurityTest extends TestCase
         $response->assertStatus(200);
     }
 
-/** @test */
+
+    #[\PHPUnit\Framework\Attributes\Test]
 public function it_escapes_xss_input_in_news_titles()
 {
     // Crée une entrée News avec un titre contenant du code XSS
@@ -38,7 +39,7 @@ public function it_escapes_xss_input_in_news_titles()
 }
 
 
-    /** @test */
+#[\PHPUnit\Framework\Attributes\Test]
     public function it_allows_cors_requests()
     {
         $response = $this->withHeaders([

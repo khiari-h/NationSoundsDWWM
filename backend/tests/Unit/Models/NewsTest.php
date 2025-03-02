@@ -9,7 +9,7 @@ class NewsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_fillable_attributes()
     {
         $news = new News();
@@ -23,7 +23,8 @@ class NewsTest extends TestCase
         ], $fillable);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_create_news()
     {
         // Créer une actualité avec l'importance comme valeur numérique
@@ -46,7 +47,8 @@ class NewsTest extends TestCase
         $this->assertEquals('Haute', $news->importance_label);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_update_news()
     {
         // Créer une actualité
@@ -77,7 +79,8 @@ class NewsTest extends TestCase
         $this->assertEquals('Haute', $news->importance_label);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_delete_news()
     {
         // Créer une actualité

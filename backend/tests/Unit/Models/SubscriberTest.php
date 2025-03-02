@@ -10,7 +10,7 @@ class SubscriberTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_fillable_attributes()
     {
         // Vérifier que les attributs attendus sont bien fillable
@@ -24,7 +24,8 @@ class SubscriberTest extends TestCase
         ], $fillable);
     }
 
-    /** @test */
+    
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_create_subscriber()
     {
         // Créer un abonné
@@ -42,7 +43,7 @@ class SubscriberTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_update_subscriber()
     {
         // Créer un abonné
@@ -67,7 +68,7 @@ class SubscriberTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_delete_subscriber()
     {
         // Créer un abonné
@@ -89,7 +90,7 @@ class SubscriberTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_enforces_unique_email()
     {
         // Créer un abonné
