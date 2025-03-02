@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: votre-app-backend
+    env: docker
+    dockerfilePath: ./Dockerfile  # Assurez-vous que c'est le chemin correct vers votre Dockerfile
+    buildCommand: ""
+    startCommand: ""
