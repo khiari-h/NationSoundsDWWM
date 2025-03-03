@@ -7,6 +7,7 @@
 - [Architecture](#architecture)
 - [Veille Technologique](#veille-technologique)
 - [DevOps et Déploiement](#devops-et-déploiement)
+- [Documentation](#documentation)
 - [Prérequis](#prérequis)
 - [Installation](#installation)
 - [Tests](#tests)
@@ -105,6 +106,19 @@ NationSounds est une plateforme de gestion d'événements de festival de musique
 - New Relic (performances)
 - Uptime Robot (disponibilité)
 
+## Documentation
+
+La documentation complète du projet est disponible dans les fichiers suivants :
+
+- [Architecture](./docs/architecture.md) - Vue d'ensemble de l'architecture du projet
+- [Guide de Déploiement Backend](./docs/deployment-guide-backend.md) - Instructions détaillées pour le déploiement
+- [Directives de Sécurité](./docs/security-guidelines.md) - Pratiques et directives de sécurité
+- [Politique de Sécurité](./SECURITY.md) - Politique de sécurité et reporting des vulnérabilités
+- [Tests](./docs/testing.md) - Stratégies et approches de test
+- [Monitoring et Alerting](./docs/monitoring.md) - Configuration des outils de monitoring
+- [Procédures de Maintenance](./docs/maintenance-procedures.md) - Procédures détaillées de maintenance
+- [Guide de Contribution](./docs/contribution-guide.md) - Guide pour les contributeurs
+
 ## Prérequis
 
 - Node.js 20.11.1+
@@ -120,8 +134,11 @@ NationSounds est une plateforme de gestion d'événements de festival de musique
 ```bash
 git clone https://github.com/votre-username/NationSounds.git
 cd NationSounds
-Dépendances
-bashCopy# Frontend
+```
+
+### Dépendances
+```bash
+# Frontend
 cd frontend
 npm install
 
@@ -129,32 +146,51 @@ npm install
 cd backend
 composer install
 npm install
-Configuration
+```
 
-Créer les fichiers .env
-Configurer les variables d'environnement
-Migrer la base de données
+### Configuration
+```bash
+# Créer les fichiers .env
+cp frontend/.env.example frontend/.env
+cp backend/.env.example backend/.env
 
-Tests
-Frontend
-bashCopy# Tests unitaires
+# Configurer les variables d'environnement selon votre environnement
+
+# Migrer la base de données
+cd backend
+php artisan migrate --seed
+```
+
+## Tests
+
+### Frontend
+```bash
+# Tests unitaires
 npm run test
 
 # Tests E2E
 npx cypress run
-Backend
-bashCopy# Tous les tests
+```
+
+### Backend
+```bash
+# Tous les tests
 php artisan test
 
 # Tests spécifiques
 php artisan test --group=models
-Contribution
+```
 
-Fork du projet
-Créer une branche (feature/ma-fonctionnalite)
-Commiter les modifications
-Pousser la branche
-Ouvrir une Pull Request
+## Contribution
+
+Pour contribuer au projet, veuillez consulter notre [Guide de Contribution](./docs/contribution-guide.md) qui détaille le processus complet.
+
+En résumé :
+- Fork du projet
+- Créer une branche (feature/ma-fonctionnalite)
+- Commiter les modifications
+- Pousser la branche
+- Ouvrir une Pull Request
 
 ## Licence
 

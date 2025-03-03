@@ -29,7 +29,7 @@ Ce document décrit les directives et pratiques de sécurité mises en place pou
 
 ### Cross-Site Scripting (XSS)
 
-- Laravel : Utilisation des outils classiques de Laravel pour protéger contre les attaques XSS. Cela inclut l’échappement des variables dans les réponses JSON et l’utilisation de la validation des données côté serveur.
+- Laravel : Utilisation des outils classiques de Laravel pour protéger contre les attaques XSS. Cela inclut l'échappement des variables dans les réponses JSON et l'utilisation de la validation des données côté serveur.
 - React : En React, les données insérées dans les composants JSX sont automatiquement échappées, ce qui empêche l'injection de code malveillant dans le DOM.
 
 ### SQL Injection
@@ -87,4 +87,50 @@ Ce document décrit les directives et pratiques de sécurité mises en place pou
 
 - Prévoir des audits de sécurité réguliers
 - Effectuer des tests de pénétration périodiques
-- Mettre à jour ce document après chaque audit ou changement significatifl
+- Mettre à jour ce document après chaque audit ou changement significatif
+
+## Guidelines de contribution sécurisée
+
+### Bonnes pratiques pour les développeurs
+
+- Ne jamais stocker de secrets (clés API, mots de passe) dans le code source
+- Toujours valider et assainir les entrées utilisateur, même dans les outils internes
+- Utiliser des requêtes préparées pour toutes les interactions avec la base de données
+- Éviter d'utiliser des fonctions d'évaluation de code (eval, exec) dans le code
+- Appliquer le principe du moindre privilège dans toutes les implémentations
+
+### Revue de code orientée sécurité
+
+- Tous les changements doivent passer par une revue de code avant fusion
+- Les revues de code doivent inclure une vérification des vulnérabilités potentielles
+- Utiliser des outils d'analyse statique de code dans le pipeline CI/CD
+- Les correctifs de sécurité ont priorité sur les autres tâches
+
+### Gestion des dépendances
+
+- Vérifier régulièrement les vulnérabilités dans les dépendances
+- Utiliser Composer Security Checker pour PHP et npm audit pour JavaScript
+- Définir des versions précises pour les dépendances plutôt que des intervalles
+
+## Gestion des vulnérabilités
+
+### Politique de divulgation
+
+- Toutes les vulnérabilités découvertes sont classifiées selon leur criticité (faible, moyenne, élevée, critique)
+- Les vulnérabilités critiques sont traitées immédiatement, avec un délai maximum de 24 heures
+- Un rapport de vulnérabilité est créé pour chaque problème identifié
+
+### Processus de correction
+
+1. Évaluation et classification de la vulnérabilité
+2. Documentation du problème et des étapes pour le reproduire
+3. Développement et test de la correction
+4. Déploiement de la correction en production
+5. Vérification post-déploiement
+6. Communication avec les parties concernées si nécessaire
+
+### Suivi des vulnérabilités
+
+- Maintenir un registre des vulnérabilités identifiées et corrigées
+- Effectuer des analyses de tendances pour identifier des problèmes récurrents
+- Adapter les pratiques de développement en fonction des leçons apprises
