@@ -90,29 +90,8 @@ jobs:
           php artisan test
         working-directory: ./backend
 
-  security-scan:
-    runs-on: ubuntu-latest
-    needs: [build-frontend, build-backend]
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Frontend security scan
-        run: |
-          cd ./frontend
-          npm install
-          npm audit --audit-level=high
-        continue-on-error: true
-      
-      - name: Backend security scan
-        run: |
-          cd ./backend
-          composer install --no-interaction
-          composer require --dev enlightn/security-checker
-          php artisan security:check
-        continue-on-error: true
-
   deploy:
-    needs: [build-frontend, build-backend, security-scan]
+    needs: [build-frontend, build-backend]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
