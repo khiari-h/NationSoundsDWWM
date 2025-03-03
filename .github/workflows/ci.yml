@@ -164,6 +164,172 @@ jobs:
           # - rsync pour copier les fichiers
           # - SSH pour exécuter des commandes à distance
           # - Commandes spécifiques à votre hébergement
+        if: ${{ env.SSH_PRIname: CI/CD for NationSounds
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+      
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./frontend
+      
+      - name: Lint
+        run: npm run lint
+        working-directory: ./frontend
+      
+      - name: Build
+        run: npm run build
+        working-directory: ./frontend
+      
+      - name: Run tests
+        run: npm test
+        working-directory: ./frontend
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend/build
+
+  build-backend:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nationsoundstest
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, json, pcre, session, zip
+          coverage: xdebug
+      
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ./backend/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      
+      - name: Install Composer Dependencies
+        run: composer install --no-interaction --no-progress
+        working-directory: ./backend
+      
+      - name: Prepare Environment
+        run: |
+          # Créer un fichier .env minimal directement si .env.example n'existe pas
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            echo "APP_NAME=NationSounds" > .env
+            echo "APP_ENV=testing" >> .env
+            echo "APP_KEY=" >> .env
+            echo "APP_DEBUG=true" >> .env
+            echo "APP_URL=http://localhost" >> .env
+            echo "DB_CONNECTION=mysql" >> .env
+            echo "DB_HOST=localhost" >> .env
+            echo "DB_PORT=3306" >> .env
+            echo "DB_DATABASE=nationsoundstest" >> .env
+            echo "DB_USERNAME=root" >> .env
+            echo "DB_PASSWORD=root" >> .env
+            echo "CACHE_DRIVER=file" >> .env
+            echo "QUEUE_CONNECTION=sync" >> .env
+            echo "SESSION_DRIVER=file" >> .env
+          fi
+          
+          # Assurer que les paramètres de DB sont corrects
+          sed -i 's/DB_HOST=127.0.0.1/DB_HOST=localhost/' .env
+          sed -i 's/DB_PASSWORD=/DB_PASSWORD=root/' .env
+        working-directory: ./backend
+      
+      - name: Generate Laravel APP_KEY
+        run: php artisan key:generate
+        working-directory: ./backend
+      
+      - name: Run Migrations
+        run: php artisan migrate --force
+        working-directory: ./backend
+      
+      - name: Run Tests
+        run: php artisan test
+        working-directory: ./backend
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: [build-frontend, build-backend]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run frontend dependency security scan
+        run: npm audit --audit-level=high
+        working-directory: ./frontend
+        continue-on-error: true
+      
+      - name: Run backend dependency security scan
+        run: |
+          composer require --dev enlightn/security-checker
+          php artisan security:check
+        working-directory: ./backend
+        continue-on-error: true
+
+  deploy:
+    needs: [build-frontend, build-backend, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download frontend build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend/build
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        if: ${{ env.SSH_PRIVATE_KEY != '' }}
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      - name: Deploy to Production
+        run: |
+          echo "Déploiement en production"
+          # Ici, vous pouvez ajouter des commandes personnalisées pour votre déploiement
+          # Par exemple :
+          # - rsync pour copier les fichiers
+          # - SSH pour exécuter des commandes à distance
+          # - Commandes spécifiques à votre hébergement
         if: ${{ env.SSH_PRIVATE_KEY != '' }}
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -172,4 +338,11 @@ jobs:
         run: |
           echo "Déploiement terminé avec succès"
 
-```
+VATE_KEY != '' }}
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      - name: Notify deployment status
+        run: |
+          echo "Déploiement terminé avec succès"
+
