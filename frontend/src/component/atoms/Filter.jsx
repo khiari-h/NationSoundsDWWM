@@ -2,10 +2,10 @@ import React from 'react';
 import Button from './Button';
 
 const Filter = ({ 
-  data, 
-  filters, 
-  filterKeys, 
-  handleFilterChange, 
+  data,
+  filters,
+  filterKeys,
+  handleFilterChange,
   resetFilters,
   filterLabels = {
     group: 'Groupes',
@@ -34,9 +34,18 @@ const Filter = ({
     return options;
   }, [data, filterKeys]);
 
+  // Gestionnaire pour empêcher la soumission par défaut du formulaire
+  const handleResetClick = (e) => {
+    e.preventDefault(); // Empêche la soumission du formulaire
+    resetFilters();
+  };
+
   return (
     <div className="mb-6">
-      <form className="flex flex-wrap justify-center space-x-4 items-center bg-concert-bg-beige p-4 rounded-lg shadow-md">
+      <form 
+        className="flex flex-wrap justify-center space-x-4 items-center bg-concert-bg-beige p-4 rounded-lg shadow-md"
+        onSubmit={(e) => e.preventDefault()} // Empêche la soumission par défaut
+      >
         {filterKeys.map((key) => (
           <div key={key} className="w-full sm:w-auto mb-2 sm:mb-0">
             <select
@@ -45,8 +54,8 @@ const Filter = ({
               value={filters[key] || ''}
               onChange={(e) => handleFilterChange(key, e.target.value)}
               className="mt-1 block w-full p-2 border border-green-300 rounded-md text-black bg-white"
-              style={{ minWidth: '150px' }} 
-            >
+              style={{ minWidth: '150px' }}
+             >
               <option value="">
                 {filterLabels[key] || key.charAt(0).toUpperCase() + key.slice(1)}
               </option>
@@ -60,9 +69,9 @@ const Filter = ({
         ))}
         <div className="mt-1 sm:mt-0">
           <Button 
-            onClick={resetFilters} 
-            label="Réinitialiser les filtres" 
-            type="button" 
+            onClick={handleResetClick} // Utiliser le gestionnaire modifié
+            label="Réinitialiser les filtres"
+            type="button"
           />
         </div>
       </form>

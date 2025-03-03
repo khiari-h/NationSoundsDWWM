@@ -1,13 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 export const useResponsiveDisplay = (initialConfig = {}) => {
-  const defaultConfig = {
+  const defaultConfig = useMemo(() => ({
     mobile: { maxWidth: 768, count: 1 },
     tablet: { maxWidth: 1024, count: 2 },
     desktop: { count: 3 }
-  };
+  }), []);
 
-  const config = { ...defaultConfig, ...initialConfig };
+  // Mémoïser la configuration pour éviter les recréations inutiles
+  const config = useMemo(() => ({ 
+    ...defaultConfig, 
+    ...initialConfig 
+  }), [defaultConfig, initialConfig]);
 
   const [displayCount, setDisplayCount] = useState(config.desktop.count);
 

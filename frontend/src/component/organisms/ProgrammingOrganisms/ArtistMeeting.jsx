@@ -15,7 +15,6 @@ const ArtistMeeting = ({ apiEndpoint = '/api/meetings' }) => {
     filters, 
     updateFilter, 
     resetFilters,
-    uniqueFilterValues 
   } = useEventFiltering(apiEndpoint, {
     initialFilters: { 
       date: '', 

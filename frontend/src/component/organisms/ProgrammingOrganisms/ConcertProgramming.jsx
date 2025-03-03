@@ -15,7 +15,6 @@ const ConcertsProgramming = ({ apiEndpoint = '/api/concerts' }) => {
     filters, 
     updateFilter, 
     resetFilters,
-    uniqueFilterValues 
   } = useEventFiltering(apiEndpoint, {
     initialFilters: { 
       date: '', 

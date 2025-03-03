@@ -3,13 +3,13 @@ import axios from '../config/axiosConfig';
 import { formatDate, formatTime } from '../utils/formatUtilis';
 
 export const useEventFiltering = (apiEndpoint, initialConfig = {}) => {
-  // Mappage des clés françaises aux clés originales
-  const filterMapping = {
+  // Mappage des clés françaises aux clés originales - mémoïsé pour stabilité
+  const filterMapping = useMemo(() => ({
     'nom': 'name',
     'date': 'date',
     'lieu': 'venue',
     'type': 'type'
-  };
+  }), []);
 
   // Configuration par défaut
   const defaultConfig = useMemo(() => ({
@@ -33,13 +33,13 @@ export const useEventFiltering = (apiEndpoint, initialConfig = {}) => {
         }
         
         if (key === 'name' || key === 'venue' || key === 'description') {
-          return event[key].toLowerCase().includes(value.toLowerCase());
+          return event[key]?.toLowerCase().includes(value.toLowerCase());
         }
         
         return event[key] === value;
       }),
     uniqueFilterKeys: []
-  }), []);
+  }), [filterMapping]);
 
   // Fusion mémoïsée de la configuration
   const config = useMemo(() => {
@@ -56,29 +56,68 @@ export const useEventFiltering = (apiEndpoint, initialConfig = {}) => {
       initialFilters: mappedInitialFilters,
       uniqueFilterKeys: (initialConfig.uniqueFilterKeys || []).map(frKey => filterMapping[frKey] || frKey)
     };
-  }, [defaultConfig, initialConfig]);
+  }, [defaultConfig, initialConfig, filterMapping]);
 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState(config.initialFilters);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const fetchEvents = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await axios.get(apiEndpoint);
+      
+      // Vérifier si la réponse contient des données
+      if (!response.data) {
+        throw new Error("La réponse ne contient pas de données");
+      }
+      
+      // Appliquer la transformation des données
       const transformedData = config.transformData(response.data);
       setEvents(transformedData);
       setError(null);
+      setDataLoaded(true);
     } catch (err) {
-      setError(err.message || "Erreur lors du chargement des données");
+      console.error("Erreur lors de la récupération des données:", err);
+      
+      // Gestion détaillée des erreurs
+      let errorMessage;
+      
+      if (err.response) {
+        // La requête a été faite et le serveur a répondu avec un code d'état hors de la plage 2xx
+        const statusCode = err.response.status;
+        const serverMessage = err.response.data?.message || err.response.statusText || "Erreur serveur";
+        
+        if (statusCode === 404) {
+          errorMessage = `Ressource introuvable: ${serverMessage}`;
+        } else if (statusCode >= 500) {
+          errorMessage = `Erreur serveur (${statusCode}): ${serverMessage}`;
+        } else {
+          errorMessage = `Erreur (${statusCode}): ${serverMessage}`;
+        }
+      } else if (err.request) {
+        // La requête a été faite mais aucune réponse n'a été reçue
+        errorMessage = "Aucune réponse du serveur. Vérifiez votre connexion réseau.";
+      } else {
+        // Une erreur s'est produite lors de la configuration de la requête
+        errorMessage = err.message || "Erreur lors du chargement des données";
+      }
+      
+      setError(errorMessage);
+      setEvents([]);
     } finally {
       setLoading(false);
     }
   }, [apiEndpoint, config]);
 
+  // Charger les données une seule fois au montage du composant
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    if (!dataLoaded) {
+      fetchEvents();
+    }
+  }, [fetchEvents, dataLoaded]);
 
   // Génération des valeurs uniques de filtres
   const uniqueFilterValues = useMemo(() => {
@@ -105,7 +144,7 @@ export const useEventFiltering = (apiEndpoint, initialConfig = {}) => {
       uniqueValues[frKey] = ['', ...values];
     });
     return uniqueValues;
-  }, [events, config]);
+  }, [events, config, filterMapping]);
 
   const filteredEvents = useMemo(() => 
     events.filter(event => config.filterStrategy(event, filters)),
@@ -116,9 +155,16 @@ export const useEventFiltering = (apiEndpoint, initialConfig = {}) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   }, []);
 
+  // Réinitialiser les filtres SANS recharger les données
   const resetFilters = useCallback(() => {
     setFilters(config.initialFilters);
   }, [config]);
+
+  // Fonction explicite pour recharger les données
+  const refetchData = useCallback(() => {
+    setDataLoaded(false); // Force un nouveau chargement
+    fetchEvents();
+  }, [fetchEvents]);
 
   return {
     events: filteredEvents,
@@ -126,8 +172,9 @@ export const useEventFiltering = (apiEndpoint, initialConfig = {}) => {
     error,
     filters,
     updateFilter,
-    resetFilters,
-    uniqueFilterValues,
-    refetch: fetchEvents
+    resetFilters, 
+    refetch: refetchData, 
+    allEvents: events, 
+    uniqueFilterValues
   };
 };

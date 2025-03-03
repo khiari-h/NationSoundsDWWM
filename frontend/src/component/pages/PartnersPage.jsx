@@ -12,10 +12,9 @@ const PartnersPage = () => {
     loading, 
     filters: eventFilters, 
     updateFilter, 
-    resetFilters 
   } = useEventFiltering('/api/partners', {
     initialFilters: { 
-      category: '' // Utilise "category" pour être cohérent
+      category: '' 
     },
     uniqueFilterKeys: ['category'],
     transformData: (data) => data.sort((a, b) => a.name.localeCompare(b.name)), // Exemple de tri
