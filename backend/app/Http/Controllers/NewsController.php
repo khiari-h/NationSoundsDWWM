@@ -7,18 +7,21 @@ use Illuminate\Support\Facades\Validator;
 
 class NewsController extends Controller
 {
+    // Récuperation de toutes les actualtiés
     public function index()
     {
         $news = News::all();
         return response()->json($news);
     }
 
+    // Affichage d'une actualité précise
     public function show($id)
     {
         $newsItem = News::findOrFail($id);
         return response()->json($newsItem);
     }
 
+     // Création d'une actualité
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -43,6 +46,7 @@ class NewsController extends Controller
         }
     }
 
+    // Mise à jour d'une actualité
     public function update(Request $request, $id)
     {
         $newsItem = News::findOrFail($id);
@@ -69,6 +73,7 @@ class NewsController extends Controller
         }
     }
 
+    // Suppression d'une actualité
     public function destroy($id)
     {
         $newsItem = News::findOrFail($id);

@@ -25,11 +25,13 @@ const ConcertsDetailsPage = () => {
     uniqueFilterKeys: ['name', 'date', 'venue', 'type']
   });
 
+   // Gestion de la pagination des concerts
   const {
     paginatedItems,
     pagination
   } = useResponsiveItemsPerPage(concerts);
 
+    // Labels pour les filtres utilisés dans l'interface utilisateur
   const filterLabels = {
     name: 'Nom du concert',
     date: 'Date',

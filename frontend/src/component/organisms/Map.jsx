@@ -2,7 +2,7 @@ import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
-import Text from '../atoms/Text';  // Assurez-vous d'importer votre composant Text
+import Text from '../atoms/Text';
 
 // Position du concert
 const CONCERT_POSITION = [48.8937, 2.3930];
@@ -25,7 +25,6 @@ const customIcon = new Icon({
 const Map = () => {
   return (
     <div className="p-4">
-      {/* Ajout du titre avec votre atome Text */}
       <Text content="Localisation du concert" type="h2" className="h2-class mb-8 text-center" />
       
       {/* Carte avec le concert */}

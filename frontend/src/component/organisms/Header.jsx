@@ -3,8 +3,10 @@ import NavItem from '../molecules/NavItem';
 import Image from '../atoms/Image';
 
 const Header = () => {
+   // Déclare un état pour gérer l'ouverture et la fermeture du menu mobile
   const [isOpen, setIsOpen] = useState(false);
 
+ // Fonction pour basculer l'état du menu mobile (ouvert/fermé)
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };

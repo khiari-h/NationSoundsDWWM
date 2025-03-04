@@ -17,7 +17,7 @@ const PartnersPage = () => {
       category: '' 
     },
     uniqueFilterKeys: ['category'],
-    transformData: (data) => data.sort((a, b) => a.name.localeCompare(b.name)), // Exemple de tri
+    transformData: (data) => data.sort((a, b) => a.name.localeCompare(b.name)), // Tri des partenaires par nom
   });
 
   const {

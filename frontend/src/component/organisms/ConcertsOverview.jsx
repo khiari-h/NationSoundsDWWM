@@ -7,12 +7,16 @@ import { useEventFiltering } from '../../hooks/useEventFiltering';
 import { formatDate, formatTime } from '../../utils/formatUtilis';
 
 const ConcertsOverview = () => {
+  // Utilisation du hook pour ajuster l'affichage en focntion de la taille de l'écran
   const displayCount = useResponsiveDisplay();
+
+  // Récupération des concerts depuis l'API et gestion de l'état (chargement, erreur)
   const { events: concerts, loading, error } = useEventFiltering('/api/concerts');
 
   if (loading) return <p>Chargement des concerts...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
+  // Limitation du nombre de concerts à afficher
   const concertCount = displayCount;
 
   return (

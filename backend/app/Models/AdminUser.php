@@ -12,7 +12,7 @@ class AdminUser extends Authenticatable
     use HasApiTokens, Notifiable, HasFactory;
 
     /**
-     * The attributes that are mass assignable.
+     * Les attributs pouvant être assignés en masse.
      *
      * @var array
      */
@@ -23,7 +23,7 @@ class AdminUser extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for arrays.
+     * Les attributs à masquer lors de la conversion en tableau ou JSON.
      *
      * @var array
      */

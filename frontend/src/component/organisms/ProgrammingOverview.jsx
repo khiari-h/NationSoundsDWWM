@@ -18,7 +18,6 @@ const ProgrammingOverview = () => {
   if (loading) return <p>Chargement de la programmation...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
-  // Utiliser directement displayCount
   const meetingCount = displayCount;
 
   return (

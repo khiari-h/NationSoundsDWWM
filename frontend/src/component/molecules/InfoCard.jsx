@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Image from '../atoms/Image';
 
-// Noimage si l'image n'existe pas sur WordPress
+// Noimage si l'image n'existe pas
 const placeholderImage = '/Noimage.jpg';
 
 const InfoCard = ({ title, description, image, additionalInfo, type }) => {

@@ -7,6 +7,7 @@ use App\Models\Subscriber;
 
 class NewsletterController extends Controller
 {
+    // Inscription à la newsletter
     public function subscribe(Request $request)
     {
         $request->validate([

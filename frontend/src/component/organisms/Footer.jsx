@@ -7,10 +7,12 @@ import axios from '../../config/axiosConfig';
 import Button from '../atoms/Button';
 
 const Footer = () => {
+ // Déclaration des états du formulaire : Gère les données des champs du formulaire, l'état de soumission et le statut de l'inscription (succès ou erreur).
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '' });
   const [status, setStatus] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Fonction pour gérer l'inscription à la newsletter en soumettant les données du formulaire.
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -34,13 +36,14 @@ const Footer = () => {
     }
   };
 
+  // Effet pour réinitialiser le message de statut après 3 secondes.
   useEffect(() => {
     if (status) {
       const timer = setTimeout(() => {
         setStatus('');
       }, 3000);
 
-      return () => clearTimeout(timer); // Cleanup the timer if the component unmounts
+      return () => clearTimeout(timer);
     }
   }, [status]);
 
