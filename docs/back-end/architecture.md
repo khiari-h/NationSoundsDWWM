@@ -62,7 +62,7 @@ La base de données est relationnelle et suit une conception normalisée. Les pr
 
 ### Schéma de base de données
 
-Le schéma détaillé est disponible dans le fichier [Database Schema](./database-schema.md).
+Le schéma détaillé est disponible dans le fichier [Database Schema](./database/database-schema.md).
 
 ## Flux de données et interactions
 
