@@ -2,7 +2,6 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://khiari-h.github.io",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
@@ -11,8 +10,6 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.21.1",
-    "frontend": "file:",
-    "gh-pages": "^6.1.1",
     "jest": "^27.5.1",
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
@@ -32,10 +29,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "eject": "react-scripts eject",
-    "preinstall": "npx npm-force-resolutions",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -63,7 +57,6 @@
     "autoprefixer": "^10.4.20",
     "babel-jest": "^29.7.0",
     "cypress": "^13.13.3",
-    "npm-force-resolutions": "^0.0.10",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10"
   }
